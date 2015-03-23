@@ -231,24 +231,24 @@ class ProposalResult(models.Model):
             result, created = cls._default_manager.get_or_create(proposal=proposal)
             result.comment_count = Review.objects.filter(proposal=proposal).count()
             result.vote_count = LatestVote.objects.filter(proposal=proposal).count()
-            result.plus_one = LatestVote.objects.filter(
+            plus_one = result.plus_one = LatestVote.objects.filter(
                 proposal=proposal,
                 vote=VOTES.PLUS_ONE
             ).count()
-            result.plus_zero = LatestVote.objects.filter(
+            plus_zero = result.plus_zero = LatestVote.objects.filter(
                 proposal=proposal,
                 vote=VOTES.PLUS_ZERO
             ).count()
-            result.minus_zero = LatestVote.objects.filter(
+            minus_zero = result.minus_zero = LatestVote.objects.filter(
                 proposal=proposal,
                 vote=VOTES.MINUS_ZERO
             ).count()
-            result.minus_one = LatestVote.objects.filter(
+            minus_one = result.minus_one = LatestVote.objects.filter(
                 proposal=proposal,
                 vote=VOTES.MINUS_ONE
             ).count()
             result.save()
-            cls._default_manager.filter(pk=result.pk).update(score=ProposalScoreExpression())
+            cls._default_manager.filter(pk=result.pk).update(score=((3 * plus_one + plus_zero) - (minus_zero + 3 * minus_one)))
 
     def update_vote(self, vote, previous=None, removal=False):
         mapping = {
@@ -277,7 +277,7 @@ class ProposalResult(models.Model):
             self.comment_count = models.F("comment_count") + 1
         self.save()
         model = self.__class__
-        model._default_manager.filter(pk=self.pk).update(score=ProposalScoreExpression())
+        model._default_manager.filter(pk=self.pk).update(score=((3 * self.plus_one + self.plus_zero) - (self.minus_zero + 3 * self.minus_one)))
 
 
 class Comment(models.Model):
