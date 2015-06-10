@@ -136,6 +136,7 @@ class ProposalBase(models.Model):
             "title": self.title,
             "speaker": self.speaker.name,
             "kind": self.kind.name,
+            "presentation_id": self.presentation.id,
         }
 
 
