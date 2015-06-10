@@ -175,6 +175,15 @@ class Presentation(models.Model):
             if speaker.user:
                 yield speaker
 
+    def update_from_proposal(self):
+        self.title = self.proposal_base.title
+        self.description = self.proposal_base.description
+        self.abstract = self.proposal_base.abstract
+        self.additional_speakers.clear()
+        for speaker in self.proposal.additional_speakers.all():
+            self.additional_speakers.add(speaker)
+        self.save()
+
     def __unicode__(self):
         return "#%s %s (%s)" % (self.number, self.title, self.speaker)
 
